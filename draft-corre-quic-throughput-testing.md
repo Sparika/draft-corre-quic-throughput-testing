@@ -46,7 +46,7 @@ In this framework, QUIC, UDP, and IP parameters are specified to optimize QUIC T
 # Introduction
 
 This document adapts the {{RFC6349}} Framework for TCP Throughput Testing to the QUIC protocol {{RFC9000}}.
-{{RFC6349}} defines a methodology for testing sustained TCP Layer performance.
+RFC6349 defines a methodology for testing sustained TCP Layer performance.
 Like TCP {{RFC793}}, QUIC is a connection oriented transport protocol.
 However, there are multiple differences between both protocols and some of these differences impact the throughput testing methodology.
 
@@ -57,9 +57,6 @@ The scope and goals section is omited as the objective of this document is preci
 {{conducting}} covers conducting QUIC Throughput testing.
 In particular, the section presents QUIC streams usage in the context of QUIC Throughput testing and discusses possible results interpretation.
 Finally, {{security}} presents additional security considerations.
-In this document, the achievable QUIC Throughput is that amount of data per unit of time that QUIC transports when in the QUIC Equilibrium state.
-(See {{changes}} for the QUIC Equilibrium definition).
-Throughout this document, "maximum achievable throughput" refers to the theoretical achievable throughput when QUIC is in the Equilibrium state.
 
 ## Impacting changes between TCP and QUIC {#changes}
 
@@ -71,13 +68,18 @@ This methodology proposes QUIC Throughput performance testing focusing on:
 - Available Control-Flow Credits and QUIC CWND
 - Path Maximum Transmission Unit (MTU)
 
-With respect to QUIC Throughput testing, the impacting changes between TCP and QUIC are congestion control genericity and receiver-controlled control flow credits instead of a sliding receiver window.
+There are multiple changes between TCP and QUIC impacting the throughput testing methodology.
+Firstly, the multiple QUIC headers and frames result in overheads variable in size which in turn impact the computation for the maximum achievable QUIC throughput.
+Secondly, QUIC provide streams which can be used for throughput testing but which may also result in variable overheads.
+Both points are discussed in {{transferttimeratio}}.
 
+Thirdly, QUIC provides congestion control genericity and receiver-controlled control flow credits instead of the TCP sliding receiver window.
 While QUIC Loss Detection and Congestion Control {{RFC9002}} specifies a congestion controller similar to TCP NewReno~{{RFC6582}},
 the signals QUIC provides for congestion control are generic and are designed to support different sender-side algorithms.
-In this document, we assume that QUIC uses a transmitting side congestion controller with a congestion window (QUIC CWND) similar to TCP CWND.
+In this document, the achievable QUIC Throughput is that amount of data per unit of time that QUIC transports when in the QUIC Equilibrium state.
 Derived from Round-Trip Time (RTT) and network Bottleneck Bandwidth (BB), the Bandwidth-Delay Product (BDP) determines the Send and Received Socket buffer sizes required to achieve the maximum QUIC Throughput.
-Then, with the help of slow start and congestion avoidance algorithms, a QUIC CWND is calculated based on the IP network path loss rate.
+Throughout this document, "maximum achievable throughput" refers to the theoretical achievable throughput when QUIC is in the Equilibrium state.
+In this document, we assume that QUIC uses a transmitting side congestion controller with a congestion window (QUIC CWND) and congestion controller states similar to TCP NewReno.
 
 ~~~
                  New path or      +------------+
@@ -103,7 +105,7 @@ Then, with the help of slow start and congestion avoidance algorithms, a QUIC CW
 On the receiving side, QUIC does not use a sliding receiver window and instead uses a control flow credits mechanism to inform the transmitting end on the
 maximum total amount of data the receiver is willing to receive for each stream and connection.
 The amount of available control flow credits does not directly control the QUIC Throughput but insufficient credits may lead to a stream or a whole connection being rate-limited.
-When and how much credit to advertise in MAX\_STREAM\_DATA and MAX\_DATA frames is left for implementations to decide and QUIC only offers a few considerations regarding this aspects.
+This is discussed in {{cfc}}.
 
 
 # Conventions and Definitions
@@ -136,12 +138,9 @@ Thus, in addition to the OS version (e.g., LINUX OS kernel), the QUIC implementa
 The QUIC test implementation and host MUST be capable of generating and receiving stateful QUIC test traffic at the full BB of the NUT.
 
 QUIC includes precise RTT statistics and MAY be directly used to gather RTT statistics if the QUIC implementation exposes them.
-Determining retransmitted data is however more complex than with TCP.
-Measuring bytes retransmission for QUIC is discussed in {{efficiency}}.
 As QUIC packets are mostly encrypted, packet capture tools do not allow to measure QUIC RTT and retransmissions and SHOULD not be used for this methodology.
 
 ## Path MTU {#mtu}
-*To be revised, as we don't want ro recommand ICMP*
 QUIC implementations SHOULD use Datagram Path MTU Discovery techniques (Datagram PMTUD).
 
 ## Round-Trip Time (RTT) and Bottleneck Bandwidth (BB) {#rtt}
@@ -150,7 +149,10 @@ These measurements are used to calculate the BDP and to provide estimates for th
 
 ## Measuring RTT
 In additions to the solutions proposed in {{RFC6349}} for measuring RTT, short QUIC sessions MAY be employed to baseline RTT values off-peak hours and outside of test sessions.
-This solution requires that the QUIC implementation expose RTT measurement and in particular the min_rtt value.
+This solution requires that the QUIC implementation expose RTT measurements {{RFC9002}}.
+latest_rtt SHOULD be used to sample baseline RTT using the minimum observed latest_RTT during off-peak hours and outside of test sessions.
+instead of latest_rtt, min_rtt MAY be used to sample baseline RTT during off-peak hours and outside of test sessions.
+smoothed_rtt MUST not be used to baseline RTT.
 
 ## Measuring BB
 This section is unchanged.
@@ -167,30 +169,29 @@ It is also RECOMMENDED to run the tests at different times of the day.
 The metrics measured are the QUIC Transfer Time Ratio, the QUIC Efficiency Percentage, and the Buffer Delay Percentage.
 These 3 metrics are defined in {{metrics}} and MUST be measured in each direction.
 
-## Minimum QUIC Congestion Control Credit
+## Minimum QUIC Congestion Control Credit {#cfc}
 As for {{RFC6349}} TCP througput testing, the QUIC throuput test MUST ensure that the QUIC performance is never rate limited.
 Whereas TCP uses a sliding receiver window (TCP RWND), QUIC relies on congestion control credits that are not automatically sliding.
 Instead, available control-flow credits are increased by sending MAX_DATA and MAX_STREAM_DATA frames.
 The algorithm used to send these frames depends on the QUIC implementation or may be left for the application to control at each receiving sides.
 
-In addition to setting Send Socket Buffer size higher than the BDP, the QUIC TTD MUST ensure that connections and streams always have Available Control-Flow Credits (ACFC) in excess of the BDP so that any QUIC stream or connection is never restricted below the BDP before MAX_DATA and MAX_STREAM_DATA frames have a chance to arrive.
-The ACFC is simply the difference between the current maximum data limit and the amount of data sent over the connection or stream for which the limit is set.
-If a QUIC connection or stream has ACFC below the minimum required ACFC, then their is a risk of the ACFC reaching 0 before the limits can be increased.
-If a QUIC stream has ACFC at 0, then that stream is rate-limited and there is a risk of the QUIC Throughput to not be optimal.
+In addition to setting Send Socket Buffer size higher than the BDP, the QUIC TTD MUST ensure that connections and streams always have Control-Flow Credits (CFC) in excess of the BDP so that any QUIC stream or connection is never restricted below the BDP before MAX_DATA and MAX_STREAM_DATA frames have a chance to arrive.
+If a QUIC connection or stream has CFC below the minimum required CFC, then their is a risk of the CFC reaching 0 before the limits can be increased.
+If a QUIC stream has CFC at 0, then that stream is rate-limited and there is a risk of the QUIC Throughput to not be optimal.
 Note that other streams may still manage to fill the BDP of the NUT.
-If a QUIC connection has ACFC at 0, then that connection is rate-limited and the QUIC Throughput cannot be optimal.
+If a QUIC connection has CFC at 0, then that connection is rate-limited and the QUIC Throughput cannot be optimal.
 The QUIC TTD MUST report every events and events' duration where a QUIC stream or connection is rate-limited.
 
 A QUIC implementation could implement a sliding receive window similar to TCP RWND by sending MAX_DATA and MAX_STREAM_DATA frames with each ACK frame.
-In this case the minimum ACFC (i.e. initial data limit) is similar to the minimum TCP RWND and example numbers proposed in {{RFC6349}}.
+In this case the minimum CFC (i.e. initial data limit) is similar to the minimum TCP RWND and example numbers proposed in {{RFC6349}}.
 However, such solution imposes a heavy overhead and it is more likely that sending of MAX_DATA and MAX_STREAM_DATA frames are delayed by the QUIC implementation.
-Thus, the minimum ACFC should be set sufficiently large so that the QUIC implementation can send MAX_DATA and MAX_STREAM_DATA frames with new limits before control-flow credits are exhausted.
+Thus, the minimum CFC should be set sufficiently large so that the QUIC implementation can send MAX_DATA and MAX_STREAM_DATA frames with new limits before control-flow credits are exhausted.
 
 # QUIC Metrics {#metrics}
 
 The proposed metrics for measuring QUIC Througput remain the same as for measuring TCP Throughput with some minor differences.
 
-## Transfert Time Ratio
+## Transfert Time Ratio {#transferttimeratio}
 
 The first metric is the QUIC Transfer Time Ratio, which is the ratio between the Actual QUIC Transfer Time versus the Ideal QUIC Transfer Time.
 The Actual QUIC Transfer Time is simply the time it takes to transfer a block of data across QUIC connection(s).
@@ -434,9 +435,10 @@ RTT metric latest_rtt MAY be used for computing Average RTT during transfer by s
 # Conducting QUIC Throughtput Tests {#conducting}
 The methodology for QUIC Throughput testing follows the same considerations as described in {{RFC6349}}.
 In addition to opening multiple connections, QUIC allows data to be exchanged over fully multiplexed streams.
-While using multiple streams over a single connection would be a typical scenario for using QUIC, QUIC frames are fully encrypted.
-As a result, the NUT cannot observe the number of streams opened for a QUIC connection and cannot apply policies based on the number of streams.
-Furthermore, multiple streams impose a variable overhead due to the variable number of STREAM frames per packet.
+While using multiple streams over a single connection would be a typical scenario for using QUIC., we do not recommend implementing that scenario.
+Firstly, multiple streams impose a variable overhead due to the variable number of STREAM frames per packet lowering the precision of the collected metrics.
+Secondly, as QUIC packets are encrypted the NUT cannot observe the number of streams opened for a QUIC connection.
+Thus we do not expect NUT to apply different policies based on the number of streams.
 A QUIC TTD SHOULD NOT use multiple test streams to fill the BDP of the NUT.
 A QUIC TTD MAY use two streams over a single connection where one stream is a test stream filling the BDP of the NUT and the other is a control stream used for controlling the test and exchanging test results.
 
@@ -505,8 +507,3 @@ This document has no IANA actions.
 
 
 --- back
-
-# Acknowledgments
-{:numbered="false"}
-
-TODO acknowledge.
