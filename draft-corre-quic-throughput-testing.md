@@ -54,8 +54,7 @@ informative:
     refcontent: 
       "Proceedings of the Workshop on the Evolution, Performance, and Interoperability of QUIC"
     DOI: 10.1145/3405796.3405828
-}
-
+    
 
 --- abstract
 
