@@ -477,18 +477,22 @@ In the basic test scenario, A QUIC TTD MAY use two streams over a single connect
 
 Implementers of a QUIC Throughput test may however want to use multiple streams in parallel.
 On one hand, using multiple streams over a single QUIC connection may result in a variable number of STREAM frames per packet, with the actual numbers depending on the number of streams, the amount of data per stream, and the QUIC implementation {{marx2020same}}.
-This overhead variability may lower the QUIC Efficiency, increase the QUIC Transfer Time Ratio, and more generally reduce the reproducibility of the test with respect to the capacity of the NUT to provide a SLA.
+This overhead variability may lower the QUIC Efficiency, increase the QUIC Transfer Time Ratio, and more generally reduce the reproducibility of the test with respect to the capacity of the NUT to provide an SLA.
 
 On the other hand, using multiple streams over a single connection is a typical scenario for using QUIC and one of the selling-point of the protocol compared to TCP.
-Unstable networks in particular those with a high packet loss are expected  benefit from stream multiplexing.
+Unstable networks in particular those with a high packet loss are expected to benefit from stream multiplexing.
 Implementing more complex scenarios in a QUIC Throughput test to better represent the use-cases of the NUT is possible.
 A QUIC TTD MAY use multiple test streams to fill the BDP of the NUT.
-In such case, the QUIC TTD SHOULD also run the test using a single test stream in order to facilitate root-cause analysis.
-The specific parameters of a scenario using multiple test streams depends however on the use-case being considered.
-For instance, emulating multiple HTTP/3 browsing sessions may involve a large number of short-lived small streams, while emulating real-time conversationnal streaming sessions may involve long-lived streams with large chunks of data.
+In such a case, the QUIC TTD SHOULD also run the test using a single test stream to facilitate root-cause analysis.
+The specific parameters of a scenario using multiple test streams depend however on the use-case being considered.
+For instance, emulating multiple HTTP/3 browsing sessions may involve a large number of short-lived small streams, while emulating real-time conversational streaming sessions may involve long-lived streams with large chunks of data.
 Details for such scenarios and relevant QoE influence factors are out-of-scope of the proposed methodology.
 
 ## 1-RTT and 0-RTT
+Another new feature of the QUIC protocol is the reduced number of RTT required to establish a connection enabling so-called 1-RTT connection establishment and 0-RTT connection re-establishment.
+It may be interesting to get a measure of how these QUIC features result in gain over a particular network.
+However, the methodology described in this document is interested in throughput measurements at an equilibrium state.
+While the present methodology baselines minimum RTT and measures average RTT during throughput testing, measuring connection re-establishment speed is out-of-scope for the proposed methodology.
 
 ## Results Interpretation
 
@@ -527,7 +531,7 @@ Security considerations mentionned in {{RFC6349}} remain valid for QUIC Throughp
 In particular, as QUIC encrypts traffic over UDP, QUIC Throughput testing may appear as a denial-of-service attack.
 Cooperation between the end-user customer and the network provider is thus required.
 
-## 0-RTT attack
+## 0-RTT attack {#0RTTattack}
 In practice, a QUIC Throughput test probably implements a control channel to control the test and one or more throughput channels to send data.
 The control channel would serve to authenticate the TTD, request a test session through some throughput channels, and exchange test results.
 As 0-RTT packets are vulnerable to replay attacks {{RFC9001}}, 0-RTT packets MUST not be used by a TTD client initiating a control channel to a TTD server.
@@ -537,5 +541,8 @@ As 0-RTT packets are vulnerable to replay attacks {{RFC9001}}, 0-RTT packets MUS
 
 This document has no IANA actions.
 
+# Acknowledgments
+{:numbered="false"}
+Thanks to Sylvain Nadeau for his valuable inputs.
 
 --- back
