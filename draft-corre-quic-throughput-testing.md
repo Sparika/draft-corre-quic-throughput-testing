@@ -417,7 +417,7 @@ As the receiver side UDP Bytes also measures these overheads but does not measur
 
 ### QUIC Efficiency Percentage Calculation
 
-As an example, considering a scenario where the MTU is 1500 bits and the QUIC overhead is 50bits per packet on average. An application sending 100,000 Bytes over QUIC would emit approximately 552 UDP packets of 1500 bits resulting in a total of 103,448 UDP Bytes.  The QUIC Efficiency Percentage would be calculated as:
+As an example, considering a scenario where the MTU is 1500 bytes and the QUIC overhead is 50 bytes per packet on average. An application sending 100,000 Bytes over QUIC would emit approximately 69 UDP packets of 1500 bytes resulting in a total of 103,448 UDP Bytes.  The QUIC Efficiency Percentage would be calculated as:
 
 ~~~pseudocode
                         100,000
