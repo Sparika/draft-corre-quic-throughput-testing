@@ -417,23 +417,23 @@ As the receiver side UDP Bytes also measures these overheads but does not measur
 
 ### QUIC Efficiency Percentage Calculation
 
-As an example, considering a scenario where the MTU is 1500 bytes and the QUIC overhead is 50 bytes per packet on average. An application sending 100,000 Bytes over QUIC would emit approximately 69 UDP packets of 1500 bytes resulting in a total of 103,448 UDP Bytes.  The QUIC Efficiency Percentage would be calculated as:
+As an example, considering a scenario where the MTU is 1500 bytes and the QUIC overhead is 50 bytes per packet on average. An application sending 1,000,000 Bytes over QUIC would emit approximately 1,000,000/1450 = 690 UDP packets of 1500 bytes resulting in a total of 690 x 1500 = 1,035,000 UDP Bytes.  The QUIC Efficiency Percentage would be calculated as:
 
 ~~~pseudocode
-                        100,000
-  QUIC Efficiency % =  ---------  X 100 = 96,6%
-                        103,448
+                        1,000,000
+  QUIC Efficiency % =  -----------  X 100 = 96,6%
+                        1,035,000
 ~~~
 
-Considering a similar example with 1% of packet loss, the UDP Bytes emitted would be approximately 104,500 Bytes. The resulting QUIC Efficiency Percentage would thus be calculated as:
+Considering a similar example with 1% of packet loss, QUIC would emit approximately 690 x 1.01 = 697 (round up) and the UDP Bytes emitted would be approximately  1,045,500 Bytes. The resulting QUIC Efficiency Percentage would thus be calculated as:
 
 ~~~pseudocode
-                        100,000
-  QUIC Efficiency % =  ---------  X 100 = 95,6%
-                        104,500
+                        1,000,000
+  QUIC Efficiency % =  -----------  X 100 = 95,6%
+                        1,045,500
 ~~~
 
-On the receiver side, the measured UDP Bytes would be approximately 103,448 UDP Bytes in both scenarios since no loss overheads would be measured resulting in Receiver QUIC Efficiency = 96,6%.
+On the receiver side, the measured UDP Bytes would be approximately 1,035,000 UDP Bytes in both scenarios since no loss overheads would be measured resulting in Receiver QUIC Efficiency = 96,6%.
 Normalizing the previously measured QUIC Efficiency metrics (sender side) would thus result in Normalised QUIC Efficiency = 100% in the first example and Normalised QUIC Efficiency = 99%  in the example with 1% of packet loss.
 
 
