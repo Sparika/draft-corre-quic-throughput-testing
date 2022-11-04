@@ -4,8 +4,8 @@
 
 Network Working Group                                           K. Corre
 Internet-Draft                                                      EXFO
-Intended status: Informational                          3 September 2021
-Expires: 7 March 2022
+Intended status: Informational                           4 November 2022
+Expires: 8 May 2023
 
 
                  Framework for QUIC Throughput Testing
@@ -47,11 +47,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 March 2022.
+   This Internet-Draft will expire on 8 May 2023.
 
 Copyright Notice
 
-   Copyright (c) 2021 IETF Trust and the persons identified as the
+   Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -59,9 +59,9 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 Table of Contents
 
@@ -567,31 +567,33 @@ Table of Contents
 
 4.2.1.  QUIC Efficiency Percentage Calculation
 
-   As an example, considering a scenario where the MTU is 1500 bits and
-   the QUIC overhead is 50bits per packet on average.  An application
-   sending 100,000 Bytes over QUIC would emit approximately 552 UDP
-   packets of 1500 bits resulting in a total of 103,448 UDP Bytes.  The
-   QUIC Efficiency Percentage would be calculated as:
+   As an example, considering a scenario where the MTU is 1500 bytes and
+   the QUIC overhead is 50 bytes per packet on average.  An application
+   sending 1,000,000 Bytes over QUIC would emit approximately
+   1,000,000/1450 = 690 UDP packets of 1500 bytes resulting in a total
+   of 690 x 1500 = 1,035,000 UDP Bytes.  The QUIC Efficiency Percentage
+   would be calculated as:
 
-                           100,000
-     QUIC Efficiency % =  ---------  X 100 = 96,6%
-                           103,448
+                           1,000,000
+     QUIC Efficiency % =  -----------  X 100 = 96,6%
+                           1,035,000
 
-   Considering a similar example with 1% of packet loss, the UDP Bytes
-   emitted would be approximately 104,500 Bytes.  The resulting QUIC
+   Considering a similar example with 1% of packet loss, QUIC would emit
+   approximately 690 x 1.01 = 697 (round up) and the UDP Bytes emitted
+   would be approximately 1,045,500 Bytes.  The resulting QUIC
    Efficiency Percentage would thus be calculated as:
 
-                           100,000
-     QUIC Efficiency % =  ---------  X 100 = 95,6%
-                           104,500
+                           1,000,000
+     QUIC Efficiency % =  -----------  X 100 = 95,7%
+                           1,045,500
 
    On the receiver side, the measured UDP Bytes would be approximately
-   103,448 UDP Bytes in both scenarios since no loss overheads would be
-   measured resulting in Receiver QUIC Efficiency = 96,6%. Normalizing
-   the previously measured QUIC Efficiency metrics (sender side) would
-   thus result in Normalised QUIC Efficiency = 100% in the first example
-   and Normalised QUIC Efficiency = 99% in the example with 1% of packet
-   loss.
+   1,035,000 UDP Bytes in both scenarios since no loss overheads would
+   be measured resulting in Receiver QUIC Efficiency = 96,6%.
+   Normalizing the previously measured QUIC Efficiency metrics (sender
+   side) would thus result in Normalised QUIC Efficiency = 100% in the
+   first example and Normalised QUIC Efficiency = 99,1% in the example
+   with 1% of packet loss.
 
 4.3.  Buffer Delay
 
@@ -754,53 +756,52 @@ Table of Contents
 
    [RFC1191]  Mogul, J. and S. Deering, "Path MTU discovery", RFC 1191,
               DOI 10.17487/RFC1191, November 1990,
-              <https://datatracker.ietf.org/doc/html/rfc1191>.
+              <https://www.rfc-editor.org/rfc/rfc1191>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
-              <https://datatracker.ietf.org/doc/html/rfc2119>.
+              <https://www.rfc-editor.org/rfc/rfc2119>.
 
    [RFC4821]  Mathis, M. and J. Heffner, "Packetization Layer Path MTU
               Discovery", RFC 4821, DOI 10.17487/RFC4821, March 2007,
-              <https://datatracker.ietf.org/doc/html/rfc4821>.
+              <https://www.rfc-editor.org/rfc/rfc4821>.
 
    [RFC6349]  Constantine, B., Forget, G., Geib, R., and R. Schrage,
               "Framework for TCP Throughput Testing", RFC 6349,
               DOI 10.17487/RFC6349, August 2011,
-              <https://datatracker.ietf.org/doc/html/rfc6349>.
+              <https://www.rfc-editor.org/rfc/rfc6349>.
 
    [RFC6582]  Henderson, T., Floyd, S., Gurtov, A., and Y. Nishida, "The
               NewReno Modification to TCP's Fast Recovery Algorithm",
               RFC 6582, DOI 10.17487/RFC6582, April 2012,
-              <https://datatracker.ietf.org/doc/html/rfc6582>.
+              <https://www.rfc-editor.org/rfc/rfc6582>.
 
-   [RFC793]   Postel, J., "Transmission Control Protocol", STD 7,
-              RFC 793, DOI 10.17487/RFC0793, September 1981,
-              <https://datatracker.ietf.org/doc/html/rfc793>.
+   [RFC793]   Postel, J., "Transmission Control Protocol", RFC 793,
+              DOI 10.17487/RFC0793, September 1981,
+              <https://www.rfc-editor.org/rfc/rfc793>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://datatracker.ietf.org/doc/html/rfc8174>.
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
    [RFC8899]  Fairhurst, G., Jones, T., Tüxen, M., Rüngeler, I., and T.
               Völker, "Packetization Layer Path MTU Discovery for
               Datagram Transports", RFC 8899, DOI 10.17487/RFC8899,
-              September 2020,
-              <https://datatracker.ietf.org/doc/html/rfc8899>.
+              September 2020, <https://www.rfc-editor.org/rfc/rfc8899>.
 
    [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
               Multiplexed and Secure Transport", RFC 9000,
               DOI 10.17487/RFC9000, May 2021,
-              <https://datatracker.ietf.org/doc/html/rfc9000>.
+              <https://www.rfc-editor.org/rfc/rfc9000>.
 
    [RFC9001]  Thomson, M., Ed. and S. Turner, Ed., "Using TLS to Secure
               QUIC", RFC 9001, DOI 10.17487/RFC9001, May 2021,
-              <https://datatracker.ietf.org/doc/html/rfc9001>.
+              <https://www.rfc-editor.org/rfc/rfc9001>.
 
    [RFC9002]  Iyengar, J., Ed. and I. Swett, Ed., "QUIC Loss Detection
               and Congestion Control", RFC 9002, DOI 10.17487/RFC9002,
-              May 2021, <https://datatracker.ietf.org/doc/html/rfc9002>.
+              May 2021, <https://www.rfc-editor.org/rfc/rfc9002>.
 
 8.2.  Informative References
 
@@ -815,5 +816,4 @@ Author's Address
 
    Kevin Corre
    EXFO
-
    Email: kevin.corre@exfo.com
