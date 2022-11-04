@@ -33,7 +33,7 @@ normative:
 informative:
   marx2020same:
     title: "Same standards, different decisions: A study of quic and http/3 implementation diversity"
-    author: 
+    author:
       -
         initials: R.
         surname: Marx
@@ -51,10 +51,10 @@ informative:
         surname: Quax
         fullname: Peter Quax
     date: 2020
-    refcontent: 
+    refcontent:
       "Proceedings of the Workshop on the Evolution, Performance, and Interoperability of QUIC"
     DOI: 10.1145/3405796.3405828
-    
+
 
 --- abstract
 
@@ -429,12 +429,12 @@ Considering a similar example with 1% of packet loss, QUIC would emit approximat
 
 ~~~pseudocode
                         1,000,000
-  QUIC Efficiency % =  -----------  X 100 = 95,6%
+  QUIC Efficiency % =  -----------  X 100 = 95,7%
                         1,045,500
 ~~~
 
 On the receiver side, the measured UDP Bytes would be approximately 1,035,000 UDP Bytes in both scenarios since no loss overheads would be measured resulting in Receiver QUIC Efficiency = 96,6%.
-Normalizing the previously measured QUIC Efficiency metrics (sender side) would thus result in Normalised QUIC Efficiency = 100% in the first example and Normalised QUIC Efficiency = 99%  in the example with 1% of packet loss.
+Normalizing the previously measured QUIC Efficiency metrics (sender side) would thus result in Normalised QUIC Efficiency = 100% in the first example and Normalised QUIC Efficiency = 99,1%  in the example with 1% of packet loss.
 
 
 ## Buffer Delay
